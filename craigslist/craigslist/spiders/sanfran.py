@@ -23,5 +23,20 @@ class SanFranSpider(BaseSpider):
     def parse_attr(self, response):
         item = CraigslistItem()
         item["link"] = response.url
+        item["title"] = "".join(response.xpath("//*[@id='titletextonly']//text()").extract())
         item["attr"] = "".join(response.xpath("//p[@class='attrgroup']//text()").extract())
+
+        unmodded_price = "".join(response.xpath("//*[@id='pagecontainer']/section/h2/span[2]/span[2]//text()").extract())
+        price = unmodded_price.strip('$')
+        item["price"] = price
+
+        item["location"] = "".join(response.xpath("//*[@id='pagecontainer']/section/h2/span[2]/small//text()").extract())
+        item["postbody"] = "".join(response.xpath("//*[@id='postingbody']//text()").extract())
+
+        posted = "".join(response.xpath("//*[@id='display-date']/time/@datetime").extract())
+
+
+        item["postdate"] = posted
+        #item["postdate"] = "".join(response.xpath("//*[@id='display-date']/time/@datetime").extract())
+
         return item
