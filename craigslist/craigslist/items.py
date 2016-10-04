@@ -20,3 +20,13 @@ class CraigslistItem(scrapy.Item):
     postbody = Field()
     location = Field()
     postdate = Field()
+
+    vin = Field()
+    odometer = Field()
+    condition = Field()
+    cylinders = Field()
+    drive = Field()
+    fuel = Field()
+    paint_color = Field()
+    size = Field()
+    title_status = Field()

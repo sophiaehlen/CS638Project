@@ -13,6 +13,13 @@ class SanFranSpider(BaseSpider):
 
     BASE_URL = 'http://sfbay.craigslist.org/'
 
+    def start_requests(self):
+        yield scrapy.Request('http://sfbay.craigslist.org/search/sfc/cto?s=100', self.parse)
+        yield scrapy.Request('http://sfbay.craigslist.org/search/sfc/cto?s=200', self.parse)
+        yield scrapy.Request('http://sfbay.craigslist.org/search/sfc/cto?s=300', self.parse)
+
+
+
 
     def parse(self, response):
         links = response.xpath("//span[@class='pl']/a/@href").extract()
@@ -24,7 +31,11 @@ class SanFranSpider(BaseSpider):
         item = CraigslistItem()
         item["link"] = response.url
         item["title"] = "".join(response.xpath("//*[@id='titletextonly']//text()").extract())
-        item["attr"] = "".join(response.xpath("//p[@class='attrgroup']//text()").extract())
+
+
+        attributes = "".join(response.xpath("//p[@class='attrgroup']//text()").extract())
+         # item["attr"]
+
 
         unmodded_price = "".join(response.xpath("//*[@id='pagecontainer']/section/h2/span[2]/span[2]//text()").extract())
         price = unmodded_price.strip('$')
@@ -37,6 +48,5 @@ class SanFranSpider(BaseSpider):
 
 
         item["postdate"] = posted
-        #item["postdate"] = "".join(response.xpath("//*[@id='display-date']/time/@datetime").extract())
 
         return item
