@@ -55,7 +55,6 @@ class SanFranSpider(BaseSpider):
 
         attributes = "".join(response.xpath("//p[@class='attrgroup']//text()").extract())
         attributes_split = attributes.split("\n")
-        #attributes_split = attributes_split.remove('')
         item["makemodel"] = attributes_split[1].lstrip()
 
         # Not elegant by any means, but it works
@@ -96,10 +95,6 @@ class SanFranSpider(BaseSpider):
                 tstatus = i.lstrip()
                 tstatus = tstatus[14:]
                 item["title_status"] = tstatus
-
-
-
-        # item["attr"]
 
 
         unmodded_price = "".join(response.xpath("//*[@id='pagecontainer']/section/h2/span[2]/span[2]//text()").extract())
