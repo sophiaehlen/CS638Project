@@ -5,6 +5,7 @@ from scrapy.selector import HtmlXPathSelector
 from craigslist.items import CraigslistItem
 
 from scrapy import Spider, Request
+import re
 
 class SanFranSpider(BaseSpider):
     name = "craig"
@@ -34,15 +35,66 @@ class SanFranSpider(BaseSpider):
 
 
         attributes = "".join(response.xpath("//p[@class='attrgroup']//text()").extract())
-         # item["attr"]
+        attributes_split = attributes.split("\n")
+        #attributes_split = attributes_split.remove('')
+        item["makemodel"] = attributes_split[1].lstrip()
+
+        # Not elegant by any means, but it works
+        for i in attributes_split:
+            if "fuel" in i:
+                fuel = i.lstrip()
+                fuel = fuel[6:]
+                item["fuel"] = fuel
+            if "condition" in i:
+                condition = i.lstrip()
+                condition = condition[11:]
+                item["condition"] = condition
+            if "VIN" in i:
+                vin = i.lstrip()
+                vin = vin[5:]
+                item["vin"] = vin
+            if "odometer" in i:
+                odometer = i.lstrip()
+                odometer = odometer[10:]
+                item["odometer"] = odometer
+            if "drive" in i:
+                drive = i.lstrip()
+                drive = drive[:]
+                item["drive"] = drive[7:]
+            if "paint" in i:
+                paint = i.lstrip()
+                paint = paint[13:]
+                item["paint_color"] = paint
+            if "cylinders" in i:
+                cylinders = i.lstrip()
+                cylinders = cylinders[11:-10]
+                item["cylinders"] = cylinders
+            if "size" in i:
+                size = i.lstrip()
+                size = size[6:]
+                item["size"] = size
+            if "status" in i:
+                tstatus = i.lstrip()
+                tstatus = tstatus[14:]
+                item["title_status"] = tstatus
+
+
+
+        # item["attr"]
 
 
         unmodded_price = "".join(response.xpath("//*[@id='pagecontainer']/section/h2/span[2]/span[2]//text()").extract())
         price = unmodded_price.strip('$')
         item["price"] = price
 
-        item["location"] = "".join(response.xpath("//*[@id='pagecontainer']/section/h2/span[2]/small//text()").extract())
-        item["postbody"] = "".join(response.xpath("//*[@id='postingbody']//text()").extract())
+        location = "".join(response.xpath("//*[@id='pagecontainer']/section/h2/span[2]/small//text()").extract())
+        location.lstrip()
+        location = location[2:-1]
+        item["location"] = location
+
+        body = "".join(response.xpath("//*[@id='postingbody']//text()").extract())
+        body = body.replace("\n", " ").replace(",", "").replace("  ", " ").lstrip().rstrip()
+        item["postbody"] = body
 
         posted = "".join(response.xpath("//*[@id='display-date']/time/@datetime").extract())
 
