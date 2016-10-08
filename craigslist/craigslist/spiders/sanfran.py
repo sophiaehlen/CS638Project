@@ -15,12 +15,31 @@ class SanFranSpider(BaseSpider):
     BASE_URL = 'http://sfbay.craigslist.org/'
 
     def start_requests(self):
+        yield scrapy.Request('http://sfbay.craigslist.org/search/sfc/cto', self.parse)
         yield scrapy.Request('http://sfbay.craigslist.org/search/sfc/cto?s=100', self.parse)
         yield scrapy.Request('http://sfbay.craigslist.org/search/sfc/cto?s=200', self.parse)
         yield scrapy.Request('http://sfbay.craigslist.org/search/sfc/cto?s=300', self.parse)
-
-
-
+        yield scrapy.Request('http://sfbay.craigslist.org/search/sfc/cto?s=400', self.parse)
+        yield scrapy.Request('http://sfbay.craigslist.org/search/sfc/cto?s=500', self.parse)
+        yield scrapy.Request('http://sfbay.craigslist.org/search/sfc/cto?s=600', self.parse)
+        yield scrapy.Request('http://sfbay.craigslist.org/search/sfc/cto?s=700', self.parse)
+        yield scrapy.Request('http://sfbay.craigslist.org/search/sfc/cto?s=800', self.parse)
+        yield scrapy.Request('http://sfbay.craigslist.org/search/sfc/cto?s=900', self.parse)
+        yield scrapy.Request('http://sfbay.craigslist.org/search/sfc/cto?s=1000', self.parse)
+        yield scrapy.Request('http://sfbay.craigslist.org/search/sfc/cto?s=1100', self.parse)
+        yield scrapy.Request('http://sfbay.craigslist.org/search/sfc/cto?s=1200', self.parse)
+        yield scrapy.Request('http://sfbay.craigslist.org/search/sfc/cto?s=1300', self.parse)
+        yield scrapy.Request('http://sfbay.craigslist.org/search/sfc/cto?s=1400', self.parse)
+        yield scrapy.Request('http://sfbay.craigslist.org/search/sfc/cto?s=1500', self.parse)
+        yield scrapy.Request('http://sfbay.craigslist.org/search/sfc/cto?s=1600', self.parse)
+        yield scrapy.Request('http://sfbay.craigslist.org/search/sfc/cto?s=1700', self.parse)
+        yield scrapy.Request('http://sfbay.craigslist.org/search/sfc/cto?s=1800', self.parse)
+        yield scrapy.Request('http://sfbay.craigslist.org/search/sfc/cto?s=1900', self.parse)
+        yield scrapy.Request('http://sfbay.craigslist.org/search/sfc/cto?s=2000', self.parse)
+        yield scrapy.Request('http://sfbay.craigslist.org/search/sfc/cto?s=2100', self.parse)
+        yield scrapy.Request('http://sfbay.craigslist.org/search/sfc/cto?s=2200', self.parse)
+        yield scrapy.Request('http://sfbay.craigslist.org/search/sfc/cto?s=2300', self.parse)
+        yield scrapy.Request('http://sfbay.craigslist.org/search/sfc/cto?s=2400', self.parse)
 
     def parse(self, response):
         links = response.xpath("//span[@class='pl']/a/@href").extract()
