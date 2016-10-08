@@ -20,3 +20,5 @@ class CraigslistItem(scrapy.Item):
     postbody = Field()
     location = Field()
     postdate = Field()
+    attr = Field()
+    
