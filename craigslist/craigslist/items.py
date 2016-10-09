@@ -15,10 +15,23 @@ class CraigslistItem(scrapy.Item):
     # name = scrapy.Field()
     link = Field()
     title = Field()
-    attr = Field()
+    makemodel = Field()
     price = Field()
     postbody = Field()
     location = Field()
     postdate = Field()
+<<<<<<< HEAD
     attr = Field()
     
+=======
+
+    vin = Field()   #
+    odometer = Field()  #
+    condition = Field() #
+    cylinders = Field() #
+    drive = Field() #
+    fuel = Field()  #
+    paint_color = Field()   #
+    size = Field()  #
+    title_status = Field()
+>>>>>>> master
