@@ -37,7 +37,6 @@ class SanFranSpider(BaseSpider):
         item["link"] = response.url
         item["title"] = "".join(response.xpath("//*[@id='titletextonly']//text()").extract())
         itemstring = "".join(response.xpath("//p[@class='attrgroup']//text()").extract())
-
         item["attr"] = itemstring
 
         unmodded_price = "".join(response.xpath("//*[@id='pagecontainer']/section/h2/span[2]/span[2]//text()").extract())
