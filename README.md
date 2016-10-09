@@ -13,8 +13,10 @@ Sophia Ehlen, Nils Reichert, Kyle Steiger
 
 ###### Website Crawling
 * Scrapy
+   * Run spider from the directory: /638/craigslist
    * To run spider: `$ scrapy crawl craig`   
    * To output into CSV file: `$ scrapy crawl craig -o filename.csv -t csv`
+   * Individual HTML pages are saved in /638/craigslist/htmldata
 
 
 ## Stage Two: Data Cleaning (10/25/16)
