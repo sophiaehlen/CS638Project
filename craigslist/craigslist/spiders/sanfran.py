@@ -3,9 +3,11 @@ from scrapy import Selector
 from scrapy.spider import BaseSpider
 from scrapy.selector import HtmlXPathSelector
 from craigslist.items import CraigslistItem
-
 from scrapy import Spider, Request
 import re
+import os
+from urllib.request import urlopen
+
 
 class SanFranSpider(BaseSpider):
     name = "craig"
@@ -43,8 +45,18 @@ class SanFranSpider(BaseSpider):
 
     def parse(self, response):
         links = response.xpath("//span[@class='pl']/a/@href").extract()
+        # Save each post HTML page to local directory
+        fileDir = os.path.dirname(os.path.realpath('__file__'))
+        i = 0
         for link in links:
             absolute_url = self.BASE_URL + link
+            page = urlopen(absolute_url)
+            page_content = page.read()
+            i += 1
+            filename = os.path.join(fileDir, 'htmldata/page_content_sf_'+str(i)+'.html')
+            with open(filename, 'w') as fid:
+                fid.write(str(page_content, 'utf-8'))
+            # Parse contents of curr posting page into CraigslistItem
             yield scrapy.Request(absolute_url, callback=self.parse_attr)
 
     def parse_attr(self, response):
