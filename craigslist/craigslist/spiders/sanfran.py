@@ -1,4 +1,6 @@
 import scrapy
+import urllib2
+import os
 from scrapy import Selector
 from scrapy.spider import BaseSpider
 from scrapy.selector import HtmlXPathSelector
@@ -8,61 +10,44 @@ import re
 import os
 from urllib.request import urlopen
 
-
+j = 0
 class SanFranSpider(BaseSpider):
     name = "craig"
     allowed_domains = ["craigslist.org"]
     start_urls = ["http://sfbay.craigslist.org/search/sfc/cto"]
 
     BASE_URL = 'http://sfbay.craigslist.org/'
+    
+    
 
     def start_requests(self):
         yield scrapy.Request('http://sfbay.craigslist.org/search/sfc/cto', self.parse)
-        yield scrapy.Request('http://sfbay.craigslist.org/search/sfc/cto?s=100', self.parse)
-        yield scrapy.Request('http://sfbay.craigslist.org/search/sfc/cto?s=200', self.parse)
-        yield scrapy.Request('http://sfbay.craigslist.org/search/sfc/cto?s=300', self.parse)
-        yield scrapy.Request('http://sfbay.craigslist.org/search/sfc/cto?s=400', self.parse)
-        yield scrapy.Request('http://sfbay.craigslist.org/search/sfc/cto?s=500', self.parse)
-        yield scrapy.Request('http://sfbay.craigslist.org/search/sfc/cto?s=600', self.parse)
-        yield scrapy.Request('http://sfbay.craigslist.org/search/sfc/cto?s=700', self.parse)
-        yield scrapy.Request('http://sfbay.craigslist.org/search/sfc/cto?s=800', self.parse)
-        yield scrapy.Request('http://sfbay.craigslist.org/search/sfc/cto?s=900', self.parse)
-        yield scrapy.Request('http://sfbay.craigslist.org/search/sfc/cto?s=1000', self.parse)
-        yield scrapy.Request('http://sfbay.craigslist.org/search/sfc/cto?s=1100', self.parse)
-        yield scrapy.Request('http://sfbay.craigslist.org/search/sfc/cto?s=1200', self.parse)
-        yield scrapy.Request('http://sfbay.craigslist.org/search/sfc/cto?s=1300', self.parse)
-        yield scrapy.Request('http://sfbay.craigslist.org/search/sfc/cto?s=1400', self.parse)
-        yield scrapy.Request('http://sfbay.craigslist.org/search/sfc/cto?s=1500', self.parse)
-        yield scrapy.Request('http://sfbay.craigslist.org/search/sfc/cto?s=1600', self.parse)
-        yield scrapy.Request('http://sfbay.craigslist.org/search/sfc/cto?s=1700', self.parse)
-        yield scrapy.Request('http://sfbay.craigslist.org/search/sfc/cto?s=1800', self.parse)
-        yield scrapy.Request('http://sfbay.craigslist.org/search/sfc/cto?s=1900', self.parse)
-        yield scrapy.Request('http://sfbay.craigslist.org/search/sfc/cto?s=2000', self.parse)
-        yield scrapy.Request('http://sfbay.craigslist.org/search/sfc/cto?s=2100', self.parse)
-        yield scrapy.Request('http://sfbay.craigslist.org/search/sfc/cto?s=2200', self.parse)
-        yield scrapy.Request('http://sfbay.craigslist.org/search/sfc/cto?s=2300', self.parse)
-        yield scrapy.Request('http://sfbay.craigslist.org/search/sfc/cto?s=2400', self.parse)
+        for i in range(100, 2400, 100):
+            yield scrapy.Request('http://sfbay.craigslist.org/search/sfc/cto?s='+str(i), self.parse)
 
     def parse(self, response):
         links = response.xpath("//span[@class='pl']/a/@href").extract()
         # Save each post HTML page to local directory
         fileDir = os.path.dirname(os.path.realpath('__file__'))
-        i = 0
+        global j
         for link in links:
             absolute_url = self.BASE_URL + link
             page = urlopen(absolute_url)
             page_content = page.read()
-            i += 1
-            filename = os.path.join(fileDir, 'htmldata/page_content_sf_'+str(i)+'.html')
+            j = j + 1
+            print(j)
+            filename = os.path.join(fileDir, 'htmldata/page_content_sf_'+str(j)+'.html')
             with open(filename, 'w') as fid:
                 fid.write(str(page_content, 'utf-8'))
-            # Parse contents of curr posting page into CraigslistItem
+            # Parse contents of curr posting page into CraigslistItem master
             yield scrapy.Request(absolute_url, callback=self.parse_attr)
 
     def parse_attr(self, response):
         item = CraigslistItem()
         item["link"] = response.url
         item["title"] = "".join(response.xpath("//*[@id='titletextonly']//text()").extract())
+        itemstring = "".join(response.xpath("//p[@class='attrgroup']//text()").extract())
+        item["attr"] = itemstring
 
 
         attributes = "".join(response.xpath("//p[@class='attrgroup']//text()").extract())
@@ -107,7 +92,6 @@ class SanFranSpider(BaseSpider):
                 tstatus = i.lstrip()
                 tstatus = tstatus[14:]
                 item["title_status"] = tstatus
-
 
         unmodded_price = "".join(response.xpath("//*[@id='pagecontainer']/section/h2/span[2]/span[2]//text()").extract())
         price = unmodded_price.strip('$')
