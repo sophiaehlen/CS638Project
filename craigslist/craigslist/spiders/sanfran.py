@@ -10,102 +10,115 @@ from urllib.request import urlopen
 
 j = 0
 class SanFranSpider(BaseSpider):
-    name = "craig"
-    allowed_domains = ["craigslist.org"]
-    start_urls = ["http://sfbay.craigslist.org/search/sfc/cto"]
+	name = "craig"
+	allowed_domains = ["craigslist.org"]
+	start_urls = ["http://washingtondc.craigslist.org/search/ctd"]
 
-    BASE_URL = 'http://sfbay.craigslist.org/'
-
-
-
-    def start_requests(self):
-
-        yield scrapy.Request('http://sfbay.craigslist.org/search/sfc/cto', self.parse)
-        for i in range(100, 300, 100):
-            yield scrapy.Request('http://sfbay.craigslist.org/search/sfc/cto?s='+str(i), self.parse)
-
-    def parse(self, response):
-        links = response.xpath("//span[@class='pl']/a/@href").extract()
-        # Save each post HTML page to local directory
-        fileDir = os.path.dirname(os.path.realpath('__file__'))
-        global j
-        for link in links:
-            absolute_url = self.BASE_URL + link
-            page = urlopen(absolute_url)
-            page_content = page.read()
-            j = j + 1
-            print(j)
-            filename = os.path.join(fileDir, 'htmldata/page_content_sf_'+str(j)+'.html')
-            with open(filename, 'w') as fid:
-                fid.write(str(page_content, 'utf-8'))
-            # Parse contents of curr posting page into CraigslistItem master
-            yield scrapy.Request(absolute_url, callback=self.parse_attr)
-
-    def parse_attr(self, response):
-        item = CraigslistItem()
-        item["link"] = response.url
-        item["title"] = "".join(response.xpath("//*[@id='titletextonly']//text()").extract())
+	BASE_URL = 'http://washingtondc.craigslist.org/'
 
 
-        attributes = "".join(response.xpath("//p[@class='attrgroup']//text()").extract())
-        attributes_split = attributes.split("\n")
-        item["makemodel"] = attributes_split[1].lstrip()
 
-        # Not elegant by any means, but it works
-        for i in attributes_split:
-            if "fuel" in i:
-                fuel = i.lstrip()
-                fuel = fuel[6:]
-                item["fuel"] = fuel
-            if "condition" in i:
-                condition = i.lstrip()
-                condition = condition[11:]
-                item["condition"] = condition
-            if "VIN" in i:
-                vin = i.lstrip()
-                vin = vin[5:]
-                item["vin"] = vin
-            if "odometer" in i:
-                odometer = i.lstrip()
-                odometer = odometer[10:]
-                item["odometer"] = odometer
-            if "drive" in i:
-                drive = i.lstrip()
-                drive = drive[:]
-                item["drive"] = drive[7:]
-            if "paint" in i:
-                paint = i.lstrip()
-                paint = paint[13:]
-                item["paint_color"] = paint
-            if "cylinders" in i:
-                cylinders = i.lstrip()
-                cylinders = cylinders[11:-10]
-                item["cylinders"] = cylinders
-            if "size" in i:
-                size = i.lstrip()
-                size = size[6:]
-                item["size"] = size
-            if "status" in i:
-                tstatus = i.lstrip()
-                tstatus = tstatus[14:]
-                item["title_status"] = tstatus
+	def start_requests(self):
 
-        unmodded_price = "".join(response.xpath("//*[@id='pagecontainer']/section/h2/span[2]/span[2]//text()").extract())
-        price = unmodded_price.strip('$')
-        item["price"] = price
+		yield scrapy.Request('http://washingtondc.craigslist.org/search/ctd', self.parse)
+		for i in range(100, 1200, 100):
+			yield scrapy.Request('http://washingtondc.craigslist.org/search/ctd?s='+str(i), self.parse)
 
-        location = "".join(response.xpath("//*[@id='pagecontainer']/section/h2/span[2]/small//text()").extract())
-        location.lstrip()
-        location = location[2:-1]
-        item["location"] = location
+		for i in range(1200, 2400, 100):
+			yield scrapy.Request('http://washingtondc.craigslist.org/search/cdt?s='+str(i), self.parse)
 
-        body = "".join(response.xpath("//*[@id='postingbody']//text()").extract())
-        body = body.replace("\n", " ").replace(",", "").replace("  ", " ").lstrip().rstrip()
-        item["postbody"] = body
+	def parse(self, response):
+		links = response.xpath("//span[@class='pl']/a/@href").extract()
+		# Save each post HTML page to local directory
+		#fileDir = os.path.dirname(os.path.realpath('__file__'))
+		#global j
+		for link in links:
+			absolute_url = self.BASE_URL + link
+			#page = urlopen(absolute_url)
+			#page_content = page.read()
+			#j = j + 1
+			#print(j)
+			#filename = os.path.join(fileDir, 'htmldata/page_content_washdc_'+str(j)+'.html')
+			#with open(filename, 'w') as fid:
+			#    fid.write(str(page_content, 'utf-8'))
+			# Parse contents of curr posting page into CraigslistItem master
+			yield scrapy.Request(absolute_url, callback=self.parse_attr)
 
-        posted = "".join(response.xpath("//*[@id='display-date']/time/@datetime").extract())
+	def parse_attr(self, response):
+		item = CraigslistItem()
+		item["link"] = response.url
+		item["title"] = "".join(response.xpath("//*[@id='titletextonly']//text()").extract())
 
 
-        item["postdate"] = posted
+		attributes = "".join(response.xpath("//p[@class='attrgroup']//text()").extract())
+		attributes_split = attributes.split("\n")
+		item["makemodel"] = attributes_split[1].lstrip()
 
-        return item
+		item["fuel"] = "NULL"
+		item["condition"] = "NULL"
+		item["vin"] = "NULL"
+		item["odometer"] = "NULL"
+		item["drive"] = "NULL"
+		item["paint_color"] = "NULL"
+		item["cylinders"] = "NULL"
+		item["size"] = "NULL"
+		item["title_status"] = "NULL"
+
+
+		# Not elegant by any means, but it works
+		for i in attributes_split:
+			if "fuel" in i:
+				fuel = i.lstrip()
+				fuel = fuel[6:]
+				item["fuel"] = fuel
+			if "condition" in i:
+				condition = i.lstrip()
+				condition = condition[11:]
+				item["condition"] = condition
+			if "VIN" in i:
+				vin = i.lstrip()
+				vin = vin[5:]
+				item["vin"] = vin
+			if "odometer" in i:
+				odometer = i.lstrip()
+				odometer = odometer[10:]
+				item["odometer"] = odometer
+			if "drive" in i:
+				drive = i.lstrip()
+				drive = drive[:]
+				item["drive"] = drive[7:]
+			if "paint" in i:
+				paint = i.lstrip()
+				paint = paint[13:]
+				item["paint_color"] = paint
+			if "cylinders" in i:
+				cylinders = i.lstrip()
+				cylinders = cylinders[11:-10]
+				item["cylinders"] = cylinders
+			if "size" in i:
+				size = i.lstrip()
+				size = size[6:]
+				item["size"] = size
+			if "status" in i:
+				tstatus = i.lstrip()
+				tstatus = tstatus[14:]
+				item["title_status"] = tstatus
+
+		unmodded_price = "".join(response.xpath("//*[@id='pagecontainer']/section/h2/span[2]/span[2]//text()").extract())
+		price = unmodded_price.strip('$')
+		item["price"] = price
+
+		location = "".join(response.xpath("//*[@id='pagecontainer']/section/h2/span[2]/small//text()").extract())
+		location.lstrip()
+		location = location[2:-1]
+		item["location"] = str(location)
+
+		body = "".join(response.xpath("//*[@id='postingbody']//text()").extract())
+		#body = body.replace("\n", " ").replace(",", "").replace("  ", " ").lstrip().rstrip()
+		body = body.lstrip().rstrip()
+		item["postbody"] = str(body)
+
+		posted = "".join(response.xpath("//*[@id='display-date']/time/@datetime").extract())
+		item["postdate"] = str(posted)
+
+		return item
